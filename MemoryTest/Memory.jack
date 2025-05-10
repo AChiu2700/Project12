@@ -1,0 +1,48 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */
+class Memory {
+    static Array storage;    // underlying RAM buffer
+    static int nextFree;     // next free word index
+
+    /** Prepares the memory manager by reserving all RAM words. */
+    function void init() {
+        var int size;
+        // allocate 32,768 words: workaround literal limit 32767 + 1
+        let size = 32767;
+        let storage = Array.new(size + 1);
+        let nextFree = 0;
+        return;
+    }
+
+    /** Reads the integer stored at a RAM location. */
+    function int peek(int addr) {
+        return storage[addr];
+    }
+
+    /** Writes the integer value to a RAM location. */
+    function void poke(int addr, int val) {
+        let storage[addr] = val;
+        return;
+    }
+
+    /** Reserves a block of memory of given size and returns its start index. */
+    function int alloc(int size) {
+        var int start;
+        let start = nextFree;
+        let nextFree = nextFree + size;
+        return start;
+    }
+
+    /** Releases a previously allocated block (no-op in simple allocator). */
+    function void deAlloc(Array arr) {
+        return;
+    }
+}

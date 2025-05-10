@@ -1,0 +1,133 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Output.jack
+
+/**
+ * Basic text output for the Hack screen.
+ * 23 rows × 64 columns; each cell is 8×11 pixels.
+ */
+class Output {
+    static int screenBase;      // base address of screen RAM (16384)
+    static int row, col;        // text cursor position
+    static Array fontMap;       // 11-row bitmaps for ASCII characters
+
+    /** Initialize screen and load font glyphs. */
+    function void init() {
+        let screenBase = 16384;
+        let row = 0;
+        let col = 0;
+        do Output.loadFont();
+        return;
+    }
+
+    /** Load a few glyphs into the fontMap. */
+    function void loadFont() {
+        let fontMap = Array.new(128);
+        // space glyph
+        do Output.setGlyph(32, 0,0,0,0,0,0,0,0,0,0,0);
+        // exclamation '!' glyph
+        do Output.setGlyph(33, 24,60,60,60,24,24,0,24,24,0,0);
+        // additional glyphs could be added here
+        return;
+    }
+
+    /** Define an 11-row glyph for character code "charCode". */
+    function void setGlyph(int charCode,
+                          int a,int b,int c,int d,int e,
+                          int f,int g,int h,int i,int j,int k) {
+        var Array glyph;
+        let glyph = Array.new(11);
+        let fontMap[charCode] = glyph;
+        let glyph[0] = a;
+        let glyph[1] = b;
+        let glyph[2] = c;
+        let glyph[3] = d;
+        let glyph[4] = e;
+        let glyph[5] = f;
+        let glyph[6] = g;
+        let glyph[7] = h;
+        let glyph[8] = i;
+        let glyph[9] = j;
+        let glyph[10] = k;
+        return;
+    }
+
+    /** Move the text cursor to row "r", column "cVal". */
+    function void moveCursor(int r, int cVal) {
+        let row = r;
+        let col = cVal;
+        return;
+    }
+
+    /** Draw character "ch" at the cursor, then advance cursor. */
+    function void printChar(char ch) {
+        var Array glyph;
+        var int addr;
+        var int y;
+        var int bits;
+        let glyph = fontMap[ch];
+        let addr = screenBase + row * 11 * 32 + (col / 2);
+        let y = 0;
+        while (y < 11) {
+            let bits = glyph[y];
+            if ((col & 1) = 1) {
+                let bits = bits * 256;
+            }
+            do Memory.poke(addr, Memory.peek(addr) | bits);
+            let addr = addr + 32;
+            let y = y + 1;
+        }
+        if (col = 63) {
+            do Output.println();
+        } else {
+            let col = col + 1;
+        }
+        return;
+    }
+
+    /** Print all characters of string "s". */
+    function void printString(String s) {
+        var int i;
+        let i = 0;
+        while (i < s.length()) {
+            do Output.printChar(s.charAt(i));
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Convert integer "n" to text and print it. */
+    function void printInt(int n) {
+        var String tmp;
+        let tmp = String.new(12);
+        do tmp.setInt(n);
+        do Output.printString(tmp);
+        do tmp.dispose();
+        return;
+    }
+
+    /** Move cursor to beginning of next line, or wrap to top. */
+    function void println() {
+        let col = 0;
+        if (row < 22) {
+            let row = row + 1;
+        } else {
+            let row = 0;
+        }
+        return;
+    }
+
+    /** Move cursor back one cell (with wrap). */
+    function void backSpace() {
+        if (col = 0) {
+            if (~(row = 0)) {
+                let row = row - 1;
+                let col = 63;
+            }
+        } else {
+            let col = col - 1;
+        }
+        return;
+    }
+}

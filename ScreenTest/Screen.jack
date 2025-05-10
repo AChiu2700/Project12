@@ -1,0 +1,128 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/String.jack
+
+/**
+ * Represents character strings with operations for constructing,
+ * disposing, character access, appending, erasing, and numeric conversions.
+ */
+class String {
+    field Array value;      // underlying char storage
+    field int capacity;     // max storage capacity
+    field int curLength;    // current string length
+
+    /** constructs a new empty string with capacity maxLength */
+    constructor String new(int maxLength) {
+        let value = Array.new(maxLength);
+        let curLength = 0;
+        let capacity = maxLength;
+        return this;
+    }
+
+    /** Disposes this string. */
+    method void dispose() {
+        return;
+    }
+
+    /** Returns the current length of this string. */
+    method int length() {
+        return curLength;
+    }
+
+    /** Returns the character at the j-th location. */
+    method char charAt(int j) {
+        if ((j < 0) | (j >= curLength)) {
+            do Sys.error(9);
+        }
+        return value[j];
+    }
+
+    /** Sets the character at the j-th location to c. */
+    method void setCharAt(int j, char c) {
+        if ((j < 0) | (j >= curLength)) {
+            do Sys.error(9);
+        }
+        let value[j] = c;
+        return;
+    }
+
+    /** Appends c to this string and returns it. */
+    method String appendChar(char c) {
+        if (curLength = capacity) {
+            do Sys.error(10);
+        }
+        let value[curLength] = c;
+        let curLength = curLength + 1;
+        return this;
+    }
+
+    /** Erases the last character from this string. */
+    method void eraseLastChar() {
+        if (curLength = 0) {
+            return;
+        }
+        let curLength = curLength - 1;
+        return;
+    }
+
+    /** Parses and returns the integer value of this string. */
+    method int intValue() {
+        var int i; var int sign; var int val; var int digit;
+        let val = 0;
+        let sign = 1;
+        let i = 0;
+        if ((curLength > 0) & (value[0] = 45)) {
+            let sign = -1;
+            let i = i + 1;
+        }
+        while (i < curLength) {
+            let digit = value[i] - 48;
+            let val = val * 10 + digit;
+            let i = i + 1;
+        }
+        return val * sign;
+    }
+
+    /** Sets this string to a decimal representation of v. */
+    method void setInt(int v) {
+        var int digit; var String tmp;
+        let curLength = 0;
+        if (v < 0) {
+            let v = -v;
+            do this.appendChar(45);
+        }
+        if (v = 0) {
+            do this.appendChar(48);
+            return;
+        }
+        let tmp = String.new(12);
+        while (v > 0) {
+            let digit = v % 10;
+            do tmp.appendChar(digit + 48);
+            let v = v / 10;
+        }
+        while (tmp.length() > 0) {
+            let digit = tmp.charAt(tmp.length() - 1);
+            do this.appendChar(digit);
+            do tmp.eraseLastChar();
+        }
+        do tmp.dispose();
+        return;
+    }
+
+    /** Returns the new line character code. */
+    function char newLine() {
+        return 128;
+    }
+
+    /** Returns the backspace character code. */
+    function char backSpace() {
+        return 129;
+    }
+
+    /** Returns the double quote (") character code. */
+    function char doubleQuote() {
+        return 34;
+    }
+}
