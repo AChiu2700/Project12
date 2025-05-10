@@ -1,0 +1,81 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Keyboard.jack
+/**
+ * A library for handling user input from the keyboard.
+ */
+class Keyboard {
+ /**
+     * No-op setup; key register is always at a fixed address.
+     */
+    function void init() {
+        return;
+    }
+
+    /**
+     * Returns ASCII/control code of the currently pressed key,
+     * or 0 if none is down.
+     */
+    function char keyPressed() {
+        return Memory.peek(24576);
+    }
+
+    /**
+     * Waits for a key press and release, echoes printable keys,
+     * and returns the captured code.
+     */
+    function char readChar() {
+        var char code, startCode;
+        while (Keyboard.keyPressed() = 0) {
+        }
+        let startCode = Keyboard.keyPressed();
+        while (~(Keyboard.keyPressed() = 0)) {
+        }
+        if (startCode < String.newLine()) {
+            do Output.printChar(startCode);
+        }
+        return startCode;
+    }
+
+    /**
+     * Displays a prompt, reads input until newline,
+     * supports backspace, and returns the resulting string.
+     */
+    function String readLine(String prompt) {
+        var String result;
+        var char ch;
+        do Output.printString(prompt);
+        let result = String.new(80);
+        // process characters
+        while (true) {
+            let ch = Keyboard.readChar();
+            // end on newline
+            if (ch = String.newLine()) {
+                do Output.println();
+                return result;
+            }
+            // handle backspace
+            if (ch = String.backSpace()) {
+                if (result.length() > 0) {
+                    do Output.backSpace();
+                    do result.eraseLastChar();
+                }
+            } else {
+                // append characters
+                do result.appendChar(ch);
+            }
+        }
+        return result; 
+    }
+
+    /**
+     * Displays a prompt, reads a line of text,
+     * and converts it into an integer.
+     */
+    function int readInt(String prompt) {
+        var String line;
+        let line = Keyboard.readLine(prompt);
+        return line.intValue();
+    }
+}

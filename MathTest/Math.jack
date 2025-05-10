@@ -1,0 +1,124 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Math.jack
+
+/**
+ * A basic math library.
+ */
+class Math {
+    static Array twoToThe;
+
+    /** Initializes the library. */
+    function void init() {
+        var int i, t;
+
+        let twoToThe = Array.new(16);
+        let i = 0;
+        let t = 1;
+        while (i < 16) {
+            let twoToThe[i] = t;
+            let t = t + t;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Returns the absolute value of x. */
+    function int abs(int x) {
+        if (x > 0) {
+            return x;
+        }
+        return -x;
+    }
+
+    /** Tests whether the i-th bit of n is set. */
+    function boolean bit(int n, int i) {
+        return (twoToThe[i] & n) > 0;
+    }
+
+    /** Returns the product x*y using shift-and-add. */
+    function int multiply(int x, int y) {
+        var int sum, shifted, j, nx, ny;
+
+        let nx = Math.abs(x);
+        let ny = Math.abs(y);
+        let sum = 0;
+        let shifted = nx;
+        let j = 0;
+        while (j < 16) {
+            if (Math.bit(ny, j)) {
+                let sum = sum + shifted;
+            }
+            let shifted = shifted + shifted;
+            let j = j + 1;
+        }
+        if ((x < 0 & y > 0) | (x > 0 & y < 0)) {
+            let sum = -sum;
+        }
+        return sum;
+    }
+
+    /** Returns the integer part of x/y. */
+    function int divide(int x, int y) {
+        var int q, nx, ny;
+
+        let nx = Math.abs(x);
+        let ny = Math.abs(y);
+        // division by zero returns 0
+        if (ny = 0) {
+            return 0;
+        }
+        // handle values where divisor > dividend
+        if (ny > nx) {
+            return 0;
+        }
+        // recursive halving
+        let q = Math.divide(nx, ny + ny);
+        if ((nx - (q + q) * ny) < ny) {
+            if ((x < 0 & y > 0) | (x > 0 & y < 0)) {
+                let q = -q;
+            }
+            return q + q;
+        } else {
+            if ((x < 0 & y > 0) | (x > 0 & y < 0)) {
+                let q = -q;
+            }
+            return (q + q) + 1;
+        }
+    }
+
+    /** Returns the integer part of the square root of x. */
+    function int sqrt(int x) {
+        var int y, j, q, qsq;
+        let y = 0;
+        let j = 7;
+        while (j > -1) {
+            let q = y + twoToThe[j];
+            let qsq = q * q;
+            if ((qsq > 0) & ((qsq < x) | (qsq = x))) {
+                let y = q;
+            }
+            let j = j - 1;
+        }
+        return y;
+    }
+
+    /** Returns the greater number. */
+    function int max(int a, int b) {
+        if (a > b) {
+            return a;
+        } else {
+            return b;
+        }
+    }
+
+    /** Returns the smaller number. */
+    function int min(int a, int b) {
+        if (a < b) {
+            return a;
+        } else {
+            return b;
+        }
+    }
+}
